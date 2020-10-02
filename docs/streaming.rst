@@ -32,13 +32,13 @@ run this outside regular trading hours you may not see anything):
           redirect_uri='https://localhost',
           token_path='/tmp/token.pickle')
   stream_client = StreamClient(client, account_id=1234567890)
+  stream_client.add_nasdaq_book_handler(
+          lambda msg: print(json.dumps(msg, indent=4)))
 
   async def read_stream():
       await stream_client.login()
       await stream_client.quality_of_service(StreamClient.QOSLevel.EXPRESS)
       await stream_client.nasdaq_book_subs(['GOOG'])
-      stream_client.add_nasdaq_book_handler(
-              lambda msg: print(json.dumps(msg, indent=4)))
 
       while True:
           await stream_client.handle_message()
