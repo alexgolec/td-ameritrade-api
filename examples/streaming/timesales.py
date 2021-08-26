@@ -1,8 +1,11 @@
+import asyncio
+import pprint
+
+from selenium import webdriver
+
 from tda.auth import easy_client
 from tda.client import Client
 from tda.streaming import StreamClient
-import asyncio
-import pprint
 
 API_KEY = "XXXXXX"
 ACCOUNT_ID = "XXXXXX"
@@ -39,6 +42,11 @@ class MyStreamConsumer:
         from the user via the web browser if necessary
         """
         self.tda_client = easy_client(
+            # You can customize your browser here
+            webdriver_func=lambda: webdriver.Chrome(),
+            #webdriver_func=lambda: webdriver.Firefox(),
+            #webdriver_func=lambda: webdriver.Safari(),
+            #webdriver_func=lambda: webdriver.Ie(),
             api_key=self.api_key,
             redirect_uri='https://localhost:8080',
             token_path=self.credentials_path)
