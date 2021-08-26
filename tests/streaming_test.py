@@ -753,6 +753,53 @@ class StreamClientTest(asynctest.TestCase):
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_chart_equity_subs_lowercase_symbols_success(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'CHART_EQUITY', 'SUBS'))]
+
+        await self.client.chart_equity_subs(['goog', 'nflX'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'CHART_EQUITY',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'GOOG,NFLX',
+                'fields': '0,1,2,3,4,5,6,7,8'
+            }
+        })
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_chart_equity_add_lowercase_symbols_success(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'CHART_EQUITY', 'ADD'))]
+
+        await self.client.chart_equity_add(['nvda'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'CHART_EQUITY',
+            'command': 'ADD',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'NVDA',
+                'fields': '0,1,2,3,4,5,6,7,8'
+            }
+        })
+
     ##########################################################################
     # CHART_FUTURES
 
@@ -906,6 +953,55 @@ class StreamClientTest(asynctest.TestCase):
 
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_chart_futures_subs_lowercase_symbols_success(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'CHART_FUTURES', 'SUBS'))]
+
+        await self.client.chart_futures_subs(['/es', '/cl'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'CHART_FUTURES',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': '/ES,/CL',
+                'fields': '0,1,2,3,4,5,6'
+            }
+        })
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_chart_futures_add_lowercase_symbols_success(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'CHART_FUTURES', 'ADD'))]
+
+        await self.client.chart_futures_add(['/zc'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'CHART_FUTURES',
+            'command': 'ADD',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': '/ZC',
+                'fields': '0,1,2,3,4,5,6'
+            }
+        })
+    
 
     ##########################################################################
     # QUOTE
@@ -1270,6 +1366,33 @@ class StreamClientTest(asynctest.TestCase):
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_level_one_equity_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'QUOTE', 'SUBS'))]
+
+        await self.client.level_one_equity_subs(['goog', 'msft'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'QUOTE',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'GOOG,MSFT',
+                'fields': ('0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,' +
+                           '20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,' +
+                           '36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,' +
+                           '52')
+            }
+        })
+
     ##########################################################################
     # OPTION
 
@@ -1570,6 +1693,33 @@ class StreamClientTest(asynctest.TestCase):
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_level_one_option_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'OPTION', 'SUBS'))]
+
+        await self.client.level_one_option_subs(
+            ['nflx_052920C620', 'fb_052920C145'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'OPTION',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'NFLX_052920C620,FB_052920C145',
+                'fields': ('0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,' +
+                           '20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,' +
+                           '36,37,38,39,40,41')
+            }
+        })
+
     ##########################################################################
     # LEVELONE_FUTURES
 
@@ -1863,6 +2013,31 @@ class StreamClientTest(asynctest.TestCase):
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_level_one_futures_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'LEVELONE_FUTURES', 'SUBS'))]
+
+        await self.client.level_one_futures_subs(['/es', '/cl'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'LEVELONE_FUTURES',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': '/ES,/CL',
+                'fields': ('0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,' +
+                           '20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35')
+            }
+        })
+
     ##########################################################################
     # LEVELONE_FOREX
 
@@ -2123,6 +2298,31 @@ class StreamClientTest(asynctest.TestCase):
 
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_level_one_forex_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'LEVELONE_FOREX', 'SUBS'))]
+
+        await self.client.level_one_forex_subs(['eur/usd', 'eur/gBP'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'LEVELONE_FOREX',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'EUR/USD,EUR/GBP',
+                'fields': ('0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,' +
+                           '20,21,22,23,24,25,26,27,28,29')
+            }
+        })
 
     ##########################################################################
     # LEVELONE_FUTURES_OPTIONS
@@ -2429,6 +2629,33 @@ class StreamClientTest(asynctest.TestCase):
 
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_level_one_futures_options_lowercase_symbols_subs_success_all_fields(
+            self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'LEVELONE_FUTURES_OPTIONS', 'SUBS'))]
+
+        await self.client.level_one_futures_options_subs(
+            ['nqu20_C6500', 'Nqu20_P6500'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'LEVELONE_FUTURES_OPTIONS',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'NQU20_C6500,NQU20_P6500',
+                'fields': ('0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,' +
+                           '19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35')
+            }
+        })
 
     ##########################################################################
     # TIMESALE_EQUITY
@@ -2745,6 +2972,58 @@ class StreamClientTest(asynctest.TestCase):
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_timesale_equity_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'TIMESALE_EQUITY', 'SUBS'))]
+
+        await self.client.timesale_equity_subs(['goog', 'fb'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'TIMESALE_EQUITY',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'GOOG,FB',
+                'fields': ('0,1,2,3,4')
+            }
+        })
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_timesale_futures_subs_lowercase_symbols_success_some_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'TIMESALE_FUTURES', 'SUBS'))]
+
+        await self.client.timesale_futures_subs(['/es', '/cl'], fields=[
+            StreamClient.TimesaleFields.SYMBOL,
+            StreamClient.TimesaleFields.TRADE_TIME,
+            StreamClient.TimesaleFields.LAST_SIZE,
+        ])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'TIMESALE_FUTURES',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': '/ES,/CL',
+                'fields': '0,1,3'
+            }
+        })
+
     ##########################################################################
     # TIMESALE_OPTIONS
 
@@ -2907,6 +3186,30 @@ class StreamClientTest(asynctest.TestCase):
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_timesale_options_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'TIMESALE_OPTIONS', 'SUBS'))]
+
+        await self.client.timesale_options_subs(['/es', '/cl'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'TIMESALE_OPTIONS',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': '/ES,/CL',
+                'fields': ('0,1,2,3,4')
+            }
+        })
+
     ##########################################################################
     # LISTED_BOOK
 
@@ -2946,6 +3249,30 @@ class StreamClientTest(asynctest.TestCase):
         with self.assertRaises(tda.streaming.UnexpectedResponseCode):
             await self.client.listed_book_subs(['GOOG', 'MSFT'])
 
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_listed_book_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'LISTED_BOOK', 'SUBS'))]
+
+        await self.client.listed_book_subs(['aapl', 'msft'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'LISTED_BOOK',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'AAPL,MSFT',
+                'fields': ('0,1,2,3')
+            }
+        })
+
     ##########################################################################
     # NASDAQ_BOOK
 
@@ -2984,6 +3311,30 @@ class StreamClientTest(asynctest.TestCase):
 
         with self.assertRaises(tda.streaming.UnexpectedResponseCode):
             await self.client.nasdaq_book_subs(['GOOG', 'MSFT'])
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_nasdaq_book_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'NASDAQ_BOOK', 'SUBS'))]
+
+        await self.client.nasdaq_book_subs(['aapl', 'jnj'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'NASDAQ_BOOK',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'AAPL,JNJ',
+                'fields': ('0,1,2,3')
+            }
+        })
 
     ##########################################################################
     # OPTIONS_BOOK
@@ -3025,6 +3376,31 @@ class StreamClientTest(asynctest.TestCase):
         with self.assertRaises(tda.streaming.UnexpectedResponseCode):
             await self.client.options_book_subs(
                 ['GOOG_052920C620', 'MSFT_052920C145'])
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_options_book_subs_lowercase_symbols_success_all_fields(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'OPTIONS_BOOK', 'SUBS'))]
+
+        await self.client.options_book_subs(
+            ['goog_052920C620', 'msft_052920C145'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'OPTIONS_BOOK',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'GOOG_052920C620,MSFT_052920C145',
+                'fields': ('0,1,2,3')
+            }
+        })
 
     ##########################################################################
     # Common book handler functionality
@@ -3644,6 +4020,30 @@ class StreamClientTest(asynctest.TestCase):
 
         self.assert_handler_called_once_with(handler, expected_item)
         self.assert_handler_called_once_with(async_handler, expected_item)
+
+    @no_duplicates
+    @asynctest.patch('tda.streaming.ws_client.connect', new_callable=asynctest.CoroutineMock)
+    async def test_news_headline_subs_lowercase_symbols_success(self, ws_connect):
+        socket = await self.login_and_get_socket(ws_connect)
+
+        socket.recv.side_effect = [json.dumps(self.success_response(
+            1, 'NEWS_HEADLINE', 'SUBS'))]
+
+        await self.client.news_headline_subs(['goog', 'msft'])
+        socket.recv.assert_awaited_once()
+        request = self.request_from_socket_mock(socket)
+
+        self.assertEqual(request, {
+            'account': '1001',
+            'service': 'NEWS_HEADLINE',
+            'command': 'SUBS',
+            'requestid': '1',
+            'source': 'streamerInfo-appId',
+            'parameters': {
+                'keys': 'GOOG,MSFT',
+                'fields': ('0,1,2,3,4,5,6,7,8,9,10')
+            }
+        })
 
     ###########################################################################
     # Handler edge cases

@@ -314,6 +314,10 @@ class StreamClient(EnumEnforcer):
             fields = field_type.all_fields()
         fields = sorted(self.convert_enum_iterable(fields, field_type))
 
+        if str(field_type(0)).split('.')[1] == 'SYMBOL':
+            for i in range(len(symbols)):
+                symbols[i] = symbols[i].upper()
+
         request, request_id = self._make_request(
             service=service, command=command,
             parameters={
