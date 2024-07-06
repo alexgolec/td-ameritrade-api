@@ -95,7 +95,17 @@ Sometimes, this additional logging is enough to help you debug. Before you ask
 for help, carefully read through your logs to see if there's anything there that 
 helps you.
 
+~~~~~~~~~~~~~~
+Disable Logging
+~~~~~~~~~~~~~~
 
+Sometimes you may want to supress verbose messages from logger module
+
+.. code-block:: python
+
+  import logging
+  logging.getLogger('tda.auth').disabled = True # disable auth logger which has default level INFO. 
+  # other possibility is logging.getLogger('tda.auth').setLevel('ERROR') #'INFO','DEBUG','WARNING','ERROR','CRITICAL' options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Gather Logs For Your Bug Report
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
