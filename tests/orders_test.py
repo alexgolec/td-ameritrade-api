@@ -176,3 +176,63 @@ class BuilderTemplates(unittest.TestCase):
                 }
             }]
         }, equity_buy_to_cover_limit('GOOG', 10, 199.99).build()))
+
+    def test_equity_sell_stop_market(self):
+        self.assertFalse(has_diff({
+            'orderType': 'STOP',
+            'quantity': 10,
+            'session': 'NORMAL',
+            'duration': 'DAY',
+            'stopPrice': '199.99',
+            'stopType': 'MARK',
+            'orderStrategyType': 'SINGLE',
+            'orderLegCollection': [{
+                'instruction': 'SELL',
+                'quantity': 10,
+                'instrument': {
+                    'symbol': 'GOOG',
+                    'assetType': 'EQUITY',
+                }
+            }]
+        }, equity_sell_stop_market('GOOG', 10, 199.99).build()))
+
+    def test_equity_sell_stop_limit(self):
+        self.assertFalse(has_diff({
+            'orderType': 'STOP_LIMIT',
+            'quantity': 10,
+            'session': 'NORMAL',
+            'duration': 'DAY',
+            'price': '88.88',
+            'stopPrice': '199.99',
+            'stopType': 'MARK',
+            'orderStrategyType': 'SINGLE',
+            'orderLegCollection': [{
+                'instruction': 'SELL',
+                'quantity': 10,
+                'instrument': {
+                    'symbol': 'GOOG',
+                    'assetType': 'EQUITY',
+                }
+            }]
+        }, equity_sell_stop_limit('GOOG', 10, 88.88, 199.99).build()))
+
+    def test_equity_sell_trailing_stop_market(self):
+        self.assertFalse(has_diff({
+            'orderType': 'TRAILING_STOP',
+            'quantity': 10,
+            'session': 'NORMAL',
+            'duration': 'DAY',
+            'stopType': 'MARK',
+            'stopPriceOffset': 5,
+            'stopPriceLinkBasis': 'MARK',
+            'stopPriceLinkType': 'PERCENT',
+            'orderStrategyType': 'SINGLE',
+            'orderLegCollection': [{
+                'instruction': 'SELL',
+                'quantity': 10,
+                'instrument': {
+                    'symbol': 'GOOG',
+                    'assetType': 'EQUITY',
+                }
+            }]
+        }, equity_sell_trailing_stop_market('GOOG', 10, 5).build()))
